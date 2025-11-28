@@ -18,6 +18,7 @@ A Spring Boot banking information system for managing clients, accounts, transfe
 - [Testing](#testing)
 - [Logging](#logging)
 - [Project Structure](#project-structure)
+- [Bilan](#bilan)  
 
 ## Overview
 
@@ -422,3 +423,15 @@ projet_AKOUM_Mohamad/
     ├── application.log
     └── transfers.log
 ```
+
+## Bilan
+
+### Difficulties Encountered
+
+Working with JPA's JOINED inheritance strategy required careful handling of SQL queries, since account data is split across parent and child tables.
+Some integration tests had issues with database constraint violations when using `@DirtiesContext`, which needed workarounds.
+Ambiguous method calls in tests (when methods accept both `Long` and `String` parameters) required explicit type casting to resolve compilation errors.
+
+### What's Left to Do
+
+Loan simulation features were not implemented. Some integration tests still need fixes for database constraint handling. 
