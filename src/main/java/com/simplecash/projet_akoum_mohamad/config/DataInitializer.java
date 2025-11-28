@@ -25,7 +25,8 @@ public class DataInitializer {
             AdvisorRepository advisorRepository,
             ClientRepository clientRepository,
             CurrentAccountRepository currentAccountRepository,
-            SavingsAccountRepository savingsAccountRepository) {
+            SavingsAccountRepository savingsAccountRepository,
+            CardRepository cardRepository) {
         
         return args -> {
             logger.info("Initializing test data...");
@@ -91,6 +92,24 @@ public class DataInitializer {
             currentAccountRepository.save(epitaCurrent);
             logger.info("Created current account {} for client {} with overdraft limit: {}", 
                     epitaCurrent.getAccountNumber(), epita.getName(), epitaCurrent.getOverdraftLimit());
+            
+            Card johnCard1 = new Card(CardType.VISA_PREMIER, CardStatus.ACTIVE);
+            johnCard1.setClient(john);
+            john.addCard(johnCard1);
+            cardRepository.save(johnCard1);
+            logger.info("Created card {} for client {}", johnCard1.getCardType(), john.getName());
+            
+            Card johnCard2 = new Card(CardType.VISA_ELECTRON, CardStatus.ACTIVE);
+            johnCard2.setClient(john);
+            john.addCard(johnCard2);
+            cardRepository.save(johnCard2);
+            logger.info("Created card {} for client {}", johnCard2.getCardType(), john.getName());
+            
+            Card epitaCard = new Card(CardType.VISA_PREMIER, CardStatus.ACTIVE);
+            epitaCard.setClient(epita);
+            epita.addCard(epitaCard);
+            cardRepository.save(epitaCard);
+            logger.info("Created card {} for client {}", epitaCard.getCardType(), epita.getName());
             
             logger.info("Test data initialization completed!");
             logger.info("Agency: {} with {} advisors and {} total clients", 

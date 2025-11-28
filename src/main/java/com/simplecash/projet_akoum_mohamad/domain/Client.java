@@ -1,6 +1,8 @@
 package com.simplecash.projet_akoum_mohamad.domain;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "clients")
@@ -35,6 +37,9 @@ public class Client {
     
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private SavingsAccount savingsAccount;
+    
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Card> cards = new ArrayList<>();
     
     public Client() {
     }
@@ -116,6 +121,24 @@ public class Client {
     
     public void setSavingsAccount(SavingsAccount savingsAccount) {
         this.savingsAccount = savingsAccount;
+    }
+    
+    public List<Card> getCards() {
+        return cards;
+    }
+    
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
+    }
+    
+    public void addCard(Card card) {
+        cards.add(card);
+        card.setClient(this);
+    }
+    
+    public void removeCard(Card card) {
+        cards.remove(card);
+        card.setClient(null);
     }
 }
 
