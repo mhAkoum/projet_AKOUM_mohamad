@@ -1,12 +1,18 @@
 package com.simplecash.projet_akoum_mohamad.service;
 
 import com.simplecash.projet_akoum_mohamad.domain.Advisor;
+import com.simplecash.projet_akoum_mohamad.domain.Card;
+import com.simplecash.projet_akoum_mohamad.domain.CardStatus;
 import com.simplecash.projet_akoum_mohamad.domain.Client;
 import com.simplecash.projet_akoum_mohamad.domain.ClientType;
+import com.simplecash.projet_akoum_mohamad.exception.AccountBalanceNotZeroException;
 import com.simplecash.projet_akoum_mohamad.exception.AdvisorFullException;
 import com.simplecash.projet_akoum_mohamad.exception.AdvisorNotFoundException;
 import com.simplecash.projet_akoum_mohamad.exception.ClientNotFoundException;
+
+import java.math.BigDecimal;
 import com.simplecash.projet_akoum_mohamad.repository.AdvisorRepository;
+import com.simplecash.projet_akoum_mohamad.repository.CardRepository;
 import com.simplecash.projet_akoum_mohamad.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,11 +29,13 @@ public class ClientService {
     
     private final ClientRepository clientRepository;
     private final AdvisorRepository advisorRepository;
+    private final CardRepository cardRepository;
     
     @Autowired
-    public ClientService(ClientRepository clientRepository, AdvisorRepository advisorRepository) {
+    public ClientService(ClientRepository clientRepository, AdvisorRepository advisorRepository, CardRepository cardRepository) {
         this.clientRepository = clientRepository;
         this.advisorRepository = advisorRepository;
+        this.cardRepository = cardRepository;
     }
     
     public Client createClient(String name, String address, String phone, String email, 
@@ -80,6 +88,33 @@ public class ClientService {
     public void deleteClient(Long id) {
         Client client = getClientById(id);
         Advisor advisor = client.getAdvisor();
+        
+        if (client.getCurrentAccount() != null) {
+            BigDecimal currentBalance = client.getCurrentAccount().getBalance();
+            if (currentBalance.compareTo(BigDecimal.ZERO) != 0) {
+                throw new AccountBalanceNotZeroException(
+                    id, 
+                    "Current", 
+                    client.getCurrentAccount().getAccountNumber()
+                );
+            }
+        }
+        
+        if (client.getSavingsAccount() != null) {
+            BigDecimal savingsBalance = client.getSavingsAccount().getBalance();
+            if (savingsBalance.compareTo(BigDecimal.ZERO) != 0) {
+                throw new AccountBalanceNotZeroException(
+                    id, 
+                    "Savings", 
+                    client.getSavingsAccount().getAccountNumber()
+                );
+            }
+        }
+        
+        for (Card card : client.getCards()) {
+            card.setStatus(CardStatus.INACTIVE);
+            cardRepository.save(card);
+        }
         
         if (advisor != null) {
             advisor.removeClient(client);

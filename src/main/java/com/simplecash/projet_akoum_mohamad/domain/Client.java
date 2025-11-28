@@ -38,7 +38,7 @@ public class Client {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private SavingsAccount savingsAccount;
     
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "client", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Card> cards = new ArrayList<>();
     
     public Client() {
